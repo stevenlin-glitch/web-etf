@@ -40,6 +40,11 @@ TRADING_DAYS_PY    = '/home/webuser/etf/etf_calculator/dateData/src/TradingDaysR
 # tracker DAO._warnIfDailyDataMissing 的 warning 標記；DAO.py 改訊息文字時須同步
 DAILY_DATA_WARNING_MARK = '(休市或 DB 尚未匯入?)'
 
+# 當日反向單 CSV 的開放時間（小時，24 制）。這個時間之前不提供「今天」的 CSV，
+# 因為當日盤後資料大概率還沒進 DB。日期選單、下載端點、前端提示文字都用這個值，
+# 要調整開放時間只改這裡（前端經 /reverse_csv_dates 的 ready_hour 取得，不另外寫死）。
+REVERSE_CSV_READY_HOUR = 22
+
 TARGET_ETF_LIST = {
     '0050', 
     '0051', 
@@ -827,10 +832,11 @@ def get_reverse_csv_dates(etf_id):
 
     try:
         days = _get_trading_days(adj_begin, end)
-        # 18:00 前不提供「今天」：當日 DB 資料大概率尚未匯入
+        # REVERSE_CSV_READY_HOUR 前不提供「今天」：當日盤後資料大概率尚未進 DB。
+        # ready_hour 一併回給前端，讓提示文字不用另外寫死時間。
         today_str = str(get_today())
-        resp = {"dates": days}
-        if today_str in days and get_now().hour < 18:
+        resp = {"dates": days, "ready_hour": REVERSE_CSV_READY_HOUR}
+        if today_str in days and get_now().hour < REVERSE_CSV_READY_HOUR:
             resp["dates"] = [d for d in days if d != today_str]
             resp["today_blocked"] = today_str
         return jsonify(resp)
@@ -857,10 +863,10 @@ def download_reverse_csv(etf_id):
     if not re.match(r'^\d{4}-\d{2}-\d{2}$', date_str):
         return jsonify({"status": "error", "message": "date 格式錯誤，須為 YYYY-MM-DD"}), 400
 
-    # 與日期選單規則一致：18:00 前不提供「今天」的反向單 CSV
-    if date_str == str(get_today()) and get_now().hour < 18:
+    # 與日期選單規則一致：REVERSE_CSV_READY_HOUR 前不提供「今天」的反向單 CSV
+    if date_str == str(get_today()) and get_now().hour < REVERSE_CSV_READY_HOUR:
         return jsonify({"status": "error",
-                        "message": f"18:00 前不提供 {date_str} 的反向單CSV"}), 403
+                        "message": f"{REVERSE_CSV_READY_HOUR}:00 前不提供 {date_str} 的反向單CSV"}), 403
 
     # tracker 輸出在 output_csv/{etf_id}/ 子資料夾（固定檔名版，時間戳檔為歷史備份）
     out_path = os.path.join(TRACKER_OUTPUT_DIR, etf_id, f"{etf_id}_{date_str}.csv")

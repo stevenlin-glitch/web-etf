@@ -1238,9 +1238,10 @@ html = r"""<!DOCTYPE html>
                     statusEl.textContent = data.message || '日期載入失敗';
                     return;
                 }
-                // 18:00 前後端會把「今天」從清單排除，於選單下方註記原因
+                // 開放時間前後端會把「今天」從清單排除，於選單下方註記原因。
+                // 時間由後端的 REVERSE_CSV_READY_HOUR 決定並隨回應帶回，前端不寫死。
                 if (data.today_blocked) {
-                    noteEl.textContent = `18:00 前不提供 ${data.today_blocked} 的反向單CSV`;
+                    noteEl.textContent = `${data.ready_hour || 22}:00 前不提供 ${data.today_blocked} 的反向單CSV`;
                     noteEl.style.display = 'block';
                 }
                 if (data.dates.length === 0) {
