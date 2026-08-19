@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 venv/
 .env
+*.bak*
+RESTful_API/*log*/
+*.log
+*.json
 
 # 大型資料
 00XXX範本/

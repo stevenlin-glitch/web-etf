@@ -154,6 +154,95 @@
             }
         }
 
+        /* ════ 調整期間欄位（表格內）════ */
+        .etf-adjust-period {
+            position: relative;
+            padding-right: 26px;
+            white-space: nowrap;
+        }
+
+        .edit-period-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1;
+            padding: 3px;
+            color: #7f8c8d;
+        }
+
+        .edit-period-btn:hover {
+            color: #0070C0;
+        }
+
+        .edit-period-btn:disabled {
+            color: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* ════ 調整期間彈窗 ════ */
+        .period-field {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 14px;
+        }
+
+        .period-field input[type="date"] {
+            font-family: "微軟正黑體", sans-serif;
+            font-size: 14px;
+            padding: 4px 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .period-error {
+            color: #e74c3c;
+            font-size: 13px;
+            min-height: 18px;
+            margin: 10px 0 0;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+        .period-btn-row {
+            margin-top: 18px;
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .period-btn-row button {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: "微軟正黑體", sans-serif;
+            color: #fff;
+        }
+
+        #period-save-btn {
+            background-color: #0070C0;
+        }
+
+        #period-clear-btn {
+            background-color: #e67e22;
+        }
+
+        #period-cancel-btn {
+            background-color: #95a5a6;
+        }
+
+        .period-btn-row button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
         /* ════ Modal 遮罩 ════ */
         /*  display 由 JS 控制，這裡不設 display:flex，
     否則加上 .show 時 opacity transition 不會動  */
@@ -478,6 +567,7 @@
             <th>ETF</th>
             <th>資料截止日</th>
             <th>生效日</th>
+            <th>調整期間</th>
             <th>搶先版</th>
             <th>凌晨版</th>
             <th>正式版</th>
@@ -488,8 +578,9 @@
 
         <tr>
             <td>0050</td>
-            <td class="etf-deadline" data-etf-id="0050">2026-05-25</td>
-            <td class="etf-effective" data-etf-id="0050">2026-06-22</td>
+            <td class="etf-deadline" data-etf-id="0050">2026-08-24</td>
+            <td class="etf-effective" data-etf-id="0050">2026-09-21</td>
+            <td class="etf-adjust-period" data-etf-id="0050"><span class="period-text" data-etf-id="0050">2026-09-18 ~ 2026-09-18</span><button class="edit-period-btn" data-etf-id="0050" data-etf-name="0050" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0050/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0050/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0050/prod/diff.html">正式版</a></td>
@@ -497,11 +588,12 @@
             <td></td>
             <td></td>
         </tr>
-
+    
         <tr>
             <td>0051</td>
-            <td class="etf-deadline" data-etf-id="0051">2026-05-25</td>
-            <td class="etf-effective" data-etf-id="0051">2026-06-22</td>
+            <td class="etf-deadline" data-etf-id="0051">2026-08-24</td>
+            <td class="etf-effective" data-etf-id="0051">2026-09-21</td>
+            <td class="etf-adjust-period" data-etf-id="0051"><span class="period-text" data-etf-id="0051">2026-09-18 ~ 2026-09-18</span><button class="edit-period-btn" data-etf-id="0051" data-etf-name="0051" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0051/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0051/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0051/prod/diff.html">正式版</a></td>
@@ -509,53 +601,51 @@
             <td></td>
             <td></td>
         </tr>
-
+    
         <tr>
             <td>0056</td>
-            <td class="etf-deadline" data-etf-id="0056">2026-05-25</td>
-            <td class="etf-effective" data-etf-id="0056">2026-06-22</td>
+            <td class="etf-deadline" data-etf-id="0056">2026-11-23</td>
+            <td class="etf-effective" data-etf-id="0056">2026-12-21</td>
+            <td class="etf-adjust-period" data-etf-id="0056"><span class="period-text" data-etf-id="0056">2026-12-18 ~ 2026-12-24</span><button class="edit-period-btn" data-etf-id="0056" data-etf-name="0056" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0056/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0056/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/0056/prod/diff.html">正式版</a></td>
             <!--<td><a class="immed-link" data-etf-id="0056">即時股價</a></td>-->
-            <td><button class="upload-btn" data-etf-id="0056" data-etf-name="0056">上傳 CSV</button><br><small
-                    class="upload-time" data-etf-id="0056"></small><small class="not-in-period"
-                    data-etf-id="0056">現在非調整期</small></td>
+            <td><button class="upload-btn" data-etf-id="0056" data-etf-name="0056">上傳 CSV</button><br><small class="upload-time" data-etf-id="0056"></small><small class="not-in-period" data-etf-id="0056">現在非調整期</small></td>
             <td><button class="reverse-csv-btn" disabled data-etf-id="0056" data-etf-name="0056">下載CSV</button></td>
         </tr>
-
+    
         <tr>
             <td>00713</td>
-            <td class="etf-deadline" data-etf-id="00713">2026-05-29</td>
-            <td class="etf-effective" data-etf-id="00713">2026-06-16</td>
+            <td class="etf-deadline" data-etf-id="00713">2026-11-30</td>
+            <td class="etf-effective" data-etf-id="00713">2026-12-16</td>
+            <td class="etf-adjust-period" data-etf-id="00713"><span class="period-text" data-etf-id="00713">2026-06-15 ~ 2026-07-06</span><button class="edit-period-btn" data-etf-id="00713" data-etf-name="00713" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00713/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00713/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00713/prod/diff.html">正式版</a></td>
             <!--<td><a class="immed-link" data-etf-id="00713">即時股價</a></td>-->
-            <td><button class="upload-btn" data-etf-id="00713" data-etf-name="00713">上傳 CSV</button><br><small
-                    class="upload-time" data-etf-id="00713"></small><small class="not-in-period"
-                    data-etf-id="00713">現在非調整期</small></td>
+            <td><button class="upload-btn" data-etf-id="00713" data-etf-name="00713">上傳 CSV</button><br><small class="upload-time" data-etf-id="00713"></small><small class="not-in-period" data-etf-id="00713">現在非調整期</small></td>
             <td><button class="reverse-csv-btn" disabled data-etf-id="00713" data-etf-name="00713">下載CSV</button></td>
         </tr>
-
+    
         <tr>
             <td>00878</td>
-            <td class="etf-deadline" data-etf-id="00878">市值資料截止日: 2026-05-19<br>股利資料截止日: 2026-05-11</td>
-            <td class="etf-effective" data-etf-id="00878">Effective Date: <br>2026-06-01</td>
+            <td class="etf-deadline" data-etf-id="00878">市值資料截止日: 2026-11-18<br>股利資料截止日: 2026-11-10</td>
+            <td class="etf-effective" data-etf-id="00878">Effective Date: <br>2026-12-01</td>
+            <td class="etf-adjust-period" data-etf-id="00878"><span class="period-text" data-etf-id="00878">2026-11-30 ~ 2026-12-15</span><button class="edit-period-btn" data-etf-id="00878" data-etf-name="00878" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00878/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00878/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00878/prod/diff.html">正式版</a></td>
             <!--<td><a class="immed-link" data-etf-id="00878">即時股價</a></td>-->
-            <td><button class="upload-btn" data-etf-id="00878" data-etf-name="00878">上傳 CSV</button><br><small
-                    class="upload-time" data-etf-id="00878"></small><small class="not-in-period"
-                    data-etf-id="00878">現在非調整期</small></td>
+            <td><button class="upload-btn" data-etf-id="00878" data-etf-name="00878">上傳 CSV</button><br><small class="upload-time" data-etf-id="00878"></small><small class="not-in-period" data-etf-id="00878">現在非調整期</small></td>
             <td><button class="reverse-csv-btn" disabled data-etf-id="00878" data-etf-name="00878">下載CSV</button></td>
         </tr>
-
+    
         <tr>
             <td>00900</td>
             <td class="etf-deadline" data-etf-id="00900">2026-06-30</td>
-            <td class="etf-effective" data-etf-id="00900">2026-07-16</td>
+            <td class="etf-effective" data-etf-id="00900">2026-07-17</td>
+            <td class="etf-adjust-period" data-etf-id="00900"><span class="period-text" data-etf-id="00900">-</span><button class="edit-period-btn" data-etf-id="00900" data-etf-name="00900" title="修改調整期間" style="display:none">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00900/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00900/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00900/prod/diff.html">正式版</a></td>
@@ -563,63 +653,59 @@
             <td></td>
             <td></td>
         </tr>
-
+    
         <tr>
             <td>00918</td>
-            <td class="etf-deadline" data-etf-id="00918">2026-06-12</td>
-            <td class="etf-effective" data-etf-id="00918">2026-07-01</td>
+            <td class="etf-deadline" data-etf-id="00918">2026-12-14</td>
+            <td class="etf-effective" data-etf-id="00918">2027-01-01</td>
+            <td class="etf-adjust-period" data-etf-id="00918"><span class="period-text" data-etf-id="00918">2026-06-30 ~ 2026-07-02</span><button class="edit-period-btn" data-etf-id="00918" data-etf-name="00918" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00918/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00918/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00918/prod/diff.html">正式版</a></td>
             <!--<td><a class="immed-link" data-etf-id="00918">即時股價</a></td>-->
-            <td><button class="upload-btn" data-etf-id="00918" data-etf-name="00918">上傳 CSV</button><br><small
-                    class="upload-time" data-etf-id="00918"></small><small class="not-in-period"
-                    data-etf-id="00918">現在非調整期</small></td>
+            <td><button class="upload-btn" data-etf-id="00918" data-etf-name="00918">上傳 CSV</button><br><small class="upload-time" data-etf-id="00918"></small><small class="not-in-period" data-etf-id="00918">現在非調整期</small></td>
             <td><button class="reverse-csv-btn" disabled data-etf-id="00918" data-etf-name="00918">下載CSV</button></td>
         </tr>
-
+    
         <tr>
             <td>00919 五月定審版</td>
-            <td class="etf-deadline" data-etf-id="00919_May">2026-05-15</td>
-            <td class="etf-effective" data-etf-id="00919_May">2026-06-02</td>
+            <td class="etf-deadline" data-etf-id="00919_May">2027-05-14</td>
+            <td class="etf-effective" data-etf-id="00919_May">2027-06-01</td>
+            <td class="etf-adjust-period" data-etf-id="00919_May"><span class="period-text" data-etf-id="00919_May">2027-05-31 ~ 2027-06-09</span><button class="edit-period-btn" data-etf-id="00919_May" data-etf-name="00919 五月定審版" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00919_May/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00919_May/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00919_May/prod/diff.html">正式版</a></td>
             <!--<td><a class="immed-link" data-etf-id="00919_May">即時股價</a></td>-->
-            <td><button class="upload-btn" data-etf-id="00919_May" data-etf-name="00919 五月定審版">上傳 CSV</button><br><small class="upload-time"
-                    data-etf-id="00919_May"></small><small class="not-in-period" data-etf-id="00919_May">現在非調整期</small>
-            </td>
+            <td><button class="upload-btn" data-etf-id="00919_May" data-etf-name="00919 五月定審版">上傳 CSV</button><br><small class="upload-time" data-etf-id="00919_May"></small><small class="not-in-period" data-etf-id="00919_May">現在非調整期</small></td>
             <td><button class="reverse-csv-btn" disabled data-etf-id="00919_May" data-etf-name="00919 五月定審版">下載CSV</button></td>
         </tr>
-
+    
         <tr>
             <td>00919 十二月定審版</td>
             <td class="etf-deadline" data-etf-id="00919_Dec">2026-11-30</td>
             <td class="etf-effective" data-etf-id="00919_Dec">2026-12-16</td>
+            <td class="etf-adjust-period" data-etf-id="00919_Dec"><span class="period-text" data-etf-id="00919_Dec">2026-12-15 ~ 2026-12-24</span><button class="edit-period-btn" data-etf-id="00919_Dec" data-etf-name="00919 十二月定審版" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00919_Dec/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00919_Dec/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00919_Dec/prod/diff.html">正式版</a></td>
             <!--<td><a class="immed-link" data-etf-id="00919_Dec">即時股價</a></td>-->
-            <td><button class="upload-btn" data-etf-id="00919_Dec" data-etf-name="00919 十二月定審版">上傳 CSV</button><br><small class="upload-time"
-                    data-etf-id="00919_Dec"></small><small class="not-in-period" data-etf-id="00919_Dec">現在非調整期</small>
-            </td>
+            <td><button class="upload-btn" data-etf-id="00919_Dec" data-etf-name="00919 十二月定審版">上傳 CSV</button><br><small class="upload-time" data-etf-id="00919_Dec"></small><small class="not-in-period" data-etf-id="00919_Dec">現在非調整期</small></td>
             <td><button class="reverse-csv-btn" disabled data-etf-id="00919_Dec" data-etf-name="00919 十二月定審版">下載CSV</button></td>
         </tr>
-
+    
         <tr>
             <td>00929</td>
-            <td class="etf-deadline" data-etf-id="00929">2026-06-09</td>
-            <td class="etf-effective" data-etf-id="00929">2026-06-26</td>
+            <td class="etf-deadline" data-etf-id="00929">2026-12-09</td>
+            <td class="etf-effective" data-etf-id="00929">2026-12-29</td>
+            <td class="etf-adjust-period" data-etf-id="00929"><span class="period-text" data-etf-id="00929">2026-06-26 ~ 2026-07-07</span><button class="edit-period-btn" data-etf-id="00929" data-etf-name="00929" title="修改調整期間" style="display:inline-block">&#9998;</button></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00929/alpha/diff.html">搶先版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00929/beta/diff.html">凌晨版</a></td>
             <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/00929/prod/diff.html">正式版</a></td>
             <!--<td><a class="immed-link" data-etf-id="00929">即時股價</a></td>-->
-            <td><button class="upload-btn" data-etf-id="00929" data-etf-name="00929">上傳 CSV</button><br><small
-                    class="upload-time" data-etf-id="00929"></small><small class="not-in-period"
-                    data-etf-id="00929">現在非調整期</small></td>
+            <td><button class="upload-btn" data-etf-id="00929" data-etf-name="00929">上傳 CSV</button><br><small class="upload-time" data-etf-id="00929"></small><small class="not-in-period" data-etf-id="00929">現在非調整期</small></td>
             <td><button class="reverse-csv-btn" disabled data-etf-id="00929" data-etf-name="00929">下載CSV</button></td>
         </tr>
-
+    
     </table>
 
     <!-- DEV ONLY: 模擬日期面板（右下角） -->
@@ -679,6 +765,27 @@
             <br>
             <button id="reverse-download-btn" style="margin-top:18px;">下載</button>
             <p id="reverse-status" style="margin-top: 12px; font-size: 12px;"></p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="periodModal">
+        <div class="modal-content" style="width:340px;">
+            <span class="modal-close" id="period-close">&times;</span>
+            <h3 id="period-modal-title" style="margin:0 0 4px;">修改調整期間</h3>
+            <div class="period-field">
+                <label for="period-begin">開始日</label>
+                <input type="date" id="period-begin">
+            </div>
+            <div class="period-field">
+                <label for="period-end">結束日</label>
+                <input type="date" id="period-end">
+            </div>
+            <p class="period-error" id="period-error"></p>
+            <div class="period-btn-row">
+                <button id="period-save-btn">儲存</button>
+                <button id="period-clear-btn">清除覆蓋</button>
+                <button id="period-cancel-btn">取消</button>
+            </div>
         </div>
     </div>
 
@@ -870,21 +977,32 @@
             }
         });
 
-        // 頁面載入時動態更新資料截止日與生效日
-        (async function () {
+        // 動態更新資料截止日、生效日與調整期間。
+        // 抽成具名函式，調整期間彈窗存檔後要能再呼叫一次刷新畫面。
+        // 順手把整份 etf_dates 存進 window.__etfDates，供彈窗預帶當前值。
+        async function refreshEtfDates() {
             try {
                 const res = await fetch(`${DEV_API}/api_dev/etf_dates`);
                 const data = await res.json();
+                window.__etfDates = data;
                 for (const [etfId, info] of Object.entries(data)) {
                     const deadlineEl = document.querySelector(`.etf-deadline[data-etf-id="${etfId}"]`);
                     const effectiveEl = document.querySelector(`.etf-effective[data-etf-id="${etfId}"]`);
                     if (deadlineEl && info.deadline) deadlineEl.innerHTML = info.deadline;
                     if (effectiveEl && info.effective) effectiveEl.innerHTML = info.effective;
+
+                    const periodEl = document.querySelector(`.period-text[data-etf-id="${etfId}"]`);
+                    const editBtn = document.querySelector(`.edit-period-btn[data-etf-id="${etfId}"]`);
+                    const hasPeriod = !!(info.adjust_begin && info.adjust_end);
+                    if (periodEl) periodEl.textContent = hasPeriod
+                        ? `${info.adjust_begin} ~ ${info.adjust_end}` : '-';
+                    if (editBtn) editBtn.style.display = hasPeriod ? 'inline-block' : 'none';
                 }
             } catch (e) {
                 // 後端未啟動時靜默略過，保留靜態值
             }
-        })();
+        }
+        refreshEtfDates();
 
         // 頁面載入時從後端取回所有 ETF 的上次上傳時間
         (async function () {
@@ -1218,6 +1336,97 @@
             select.disabled = false;
             dlBtn.textContent = '下載';
         });
+
+        // ════ 調整期間修改 ════
+        // 存檔流程在後端是同步的（寫覆蓋檔 → 重算 etf_dates → 重算反向單 CSV，最壞 120 秒），
+        // 期間鎖住三顆按鈕避免重複送出。錯誤訊息一律用後端回的 message，前端不自己編。
+        (function () {
+            const modal = document.getElementById('periodModal');
+            const titleEl = document.getElementById('period-modal-title');
+            const beginEl = document.getElementById('period-begin');
+            const endEl = document.getElementById('period-end');
+            const errorEl = document.getElementById('period-error');
+            const saveBtn = document.getElementById('period-save-btn');
+            const clearBtn = document.getElementById('period-clear-btn');
+            const cancelBtn = document.getElementById('period-cancel-btn');
+            let currentPeriodEtfId = null;
+
+            function setBusy(busy) {
+                [saveBtn, clearBtn, cancelBtn].forEach(b => b.disabled = busy);
+                saveBtn.textContent = busy ? '重算中…' : '儲存';
+            }
+
+            function openPeriodModal(etfId, etfName) {
+                currentPeriodEtfId = etfId;
+                const info = (window.__etfDates || {})[etfId] || {};
+                let begin = info.adjust_begin || '';
+                let end = info.adjust_end || '';
+                if (!begin || !end) {
+                    // __etfDates 還沒載到（後端曾短暫失聯）時，退回讀畫面上的靜態值
+                    const textEl = document.querySelector(`.period-text[data-etf-id="${etfId}"]`);
+                    const parts = (textEl ? textEl.textContent : '').split(' ~ ');
+                    if (parts.length === 2) { begin = parts[0].trim(); end = parts[1].trim(); }
+                }
+                titleEl.textContent = `修改調整期間 - ${etfName}`;
+                beginEl.value = begin;
+                endEl.value = end;
+                errorEl.textContent = '';
+                setBusy(false);
+                modal.style.display = 'flex';
+                requestAnimationFrame(() => modal.classList.add('show'));
+            }
+
+            function closePeriodModal() {
+                modal.classList.remove('show');
+                setTimeout(() => modal.style.display = 'none', 300);
+            }
+
+            async function submitPeriod(method, payload) {
+                errorEl.textContent = '';
+                setBusy(true);
+                try {
+                    const opts = { method };
+                    if (payload) {
+                        opts.headers = { 'Content-Type': 'application/json' };
+                        opts.body = JSON.stringify(payload);
+                    }
+                    const res = await fetch(`${DEV_API}/api_dev/adjust_period/${currentPeriodEtfId}`, opts);
+                    const data = await res.json();
+                    if (!res.ok || data.status !== 'ok') {
+                        errorEl.textContent = data.message || '修改失敗';
+                        setBusy(false);
+                        return;
+                    }
+                    closePeriodModal();
+                    await refreshEtfDates();      // 調整期間 / 截止日 / 生效日
+                    await refreshAdjustStatus();  // 非調整期紅字、上傳按鈕、下載CSV 按鈕
+                } catch (e) {
+                    errorEl.textContent = '連線失敗，請稍後再試';
+                    setBusy(false);
+                }
+            }
+
+            document.querySelectorAll('.edit-period-btn').forEach(btn => {
+                btn.addEventListener('click', () => openPeriodModal(btn.dataset.etfId, btn.dataset.etfName));
+            });
+
+            saveBtn.addEventListener('click', () => {
+                if (!beginEl.value || !endEl.value) {
+                    errorEl.textContent = '請填寫調整期間的開始日與結束日';
+                    return;
+                }
+                submitPeriod('POST', { adjust_begin: beginEl.value, adjust_end: endEl.value });
+            });
+
+            clearBtn.addEventListener('click', () => {
+                if (!confirm('確定要清除覆蓋，回到自動計算的調整期間？')) return;
+                submitPeriod('DELETE', null);
+            });
+
+            cancelBtn.addEventListener('click', closePeriodModal);
+            document.getElementById('period-close').addEventListener('click', closePeriodModal);
+            modal.addEventListener('click', function (e) { if (e.target === this) closePeriodModal(); });
+        })();
     </script>
 
 </body>

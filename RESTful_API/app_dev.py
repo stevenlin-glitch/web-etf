@@ -27,6 +27,8 @@ UPLOAD_FOLDER      = '/home/webuser/etf/showdown_csv/dev/'
 UPLOAD_TIMES_PATH  = '/var/www/html/web/etf/home/dev/upload_times.json'
 ETF_DATES_PATH     = '/var/www/html/web/etf/home/dev/etf_dates.json'
 GENDATEDATA_SH     = '/home/webuser/etf/etf_calculator/dateData/genDateData_dev.sh'
+# 使用者手動覆蓋的調整期間；DAO_dev.py 會在算完自動區間後套用這份覆蓋
+USER_DATES_PATH    = '/home/webuser/etf/etf_calculator/report_generator/dateData/dev/dates_update_by_user.json'
 
 # 反單策略 CSV（sitcRebalanceTracker）相關路徑
 ETF_VENV_PY        = '/home/webuser/etf/venv/bin/python'
@@ -319,15 +321,21 @@ def set_mock_date():
     })
 
 
-def _run_gendatedata():
+def _run_gendatedata(skip_trading_day_check=False):
     """執行 genDateData_dev.sh --from-upload-times，同步等待完成後回傳結果。
 
     以 upload_times.json 的 today 重新產生 etf_dates.json；
     today 非交易日時腳本會拒絕更新（returncode != 0）。
+
+    skip_trading_day_check=True 時額外帶 --skip-trading-day-check 跳過該檢查——
+    使用者手動修改調整期間必須隨時能立即生效，不能因為今天是假日就不更新。
     """
+    args = [GENDATEDATA_SH, "--from-upload-times"]
+    if skip_trading_day_check:
+        args.append("--skip-trading-day-check")
     try:
         result = subprocess.run(
-            [GENDATEDATA_SH, "--from-upload-times"],
+            args,
             capture_output=True,
             text=True,
             timeout=120,
@@ -439,6 +447,189 @@ def _start_reverse_csv_backfill(etf_id):
         return {"started": True, "dates": days}
     except Exception as e:
         return {"started": False, "reason": str(e)}
+
+
+# =========================================================================
+# 調整期間手動修改（dates_update_by_user.json）
+# =========================================================================
+
+def _parse_iso_date(value):
+    """把 YYYY-MM-DD 字串轉成 date；格式錯或非合法日期回 None。
+
+    不沿用 is_valid_date()——那支會一併拒絕未來日期，
+    而調整期間本來就常常是未來日期（例如 0050 的 2026-09-18）。
+    """
+    if not isinstance(value, str) or not re.match(r'^\d{4}-\d{2}-\d{2}$', value):
+        return None
+    try:
+        return datetime.strptime(value, '%Y-%m-%d').date()
+    except ValueError:
+        return None
+
+
+def _has_showdown_csv(etf_id):
+    """該 ETF 是否有 tracker 認得的 showdown CSV。
+
+    regex 必須與 tracker.py 的 findLatestShowdownCsv 一致（只收時間戳結尾的檔名，
+    排除 _tmp / _backup 等雜檔）。改動 tracker 的檔名規則時這裡要同步，
+    否則會出現「API 判定有 CSV 但 tracker 找不到」的落差。
+    """
+    pattern = re.compile(rf'^{re.escape(etf_id)}_\d{{8}}(_\d{{6}})?\.csv$')
+    try:
+        return any(pattern.match(name) for name in os.listdir(UPLOAD_FOLDER))
+    except OSError:
+        return False
+
+
+def _validate_adjust_period(begin, end):
+    """驗證使用者填的調整期間；通過回 None，否則回錯誤訊息字串（直接給前端顯示）。"""
+    beginDate = _parse_iso_date(begin)
+    endDate   = _parse_iso_date(end)
+    if beginDate is None or endDate is None:
+        return "日期格式錯誤，須為 YYYY-MM-DD"
+    if beginDate > endDate:
+        return "結束日不能早於開始日"
+    try:
+        if not _get_trading_days(begin, end):
+            return f"{begin} ~ {end} 區間內沒有交易日"
+    except subprocess.TimeoutExpired:
+        return "查詢交易日超時（>60s）"
+    except Exception as e:
+        return f"查詢交易日失敗：{e}"
+    return None
+
+
+def _read_user_dates():
+    """讀 dates_update_by_user.json；檔案不存在回 {}。
+
+    內容毀損時直接拋 JSONDecodeError——寧可整支失敗，也不要用空 dict 覆寫壞檔，
+    那會把其他 ETF 既有的覆蓋值一起清掉。
+    """
+    if not os.path.exists(USER_DATES_PATH):
+        return {}
+    with open(USER_DATES_PATH, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def _write_user_dates(data):
+    """寫回 dates_update_by_user.json，維持原檔的 4 空格縮排與中文原樣輸出。"""
+    with open(USER_DATES_PATH, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
+
+
+def _post_adjust_period_refresh(etf_id):
+    """調整期間變更後重算該 ETF 的反向單 CSV；回傳 dict 描述結果，不拋例外。
+
+    tracker 的累計欄位（累計調整張／累計調整進度）從 adjust_begin 起累加，
+    adjust_begin 一改，同一天的 CSV 內容就跟著變。backfill 只回算到「昨天」，
+    今天那份得靠下載時重算，所以要先把今天的快取檔刪掉讓它失效
+    （固定檔名檔而已，時間戳備份保留）。
+    """
+    if not _has_showdown_csv(etf_id):
+        return {"started": False, "reason": f"{etf_id} 沒有 showdown CSV，跳過重算"}
+
+    todayCsv = os.path.join(TRACKER_OUTPUT_DIR, etf_id, f"{etf_id}_{get_today()}.csv")
+    try:
+        os.remove(todayCsv)
+    except OSError:
+        pass  # 本來就沒有，或已被清掉
+
+    return _start_reverse_csv_backfill(etf_id)
+
+
+def _apply_adjust_period_change(etf_id, new_entry):
+    """寫入覆蓋 → 重算 etf_dates → 重算反向單 CSV。回傳 (body, http_status)。
+
+    genDateData 失敗時把 dates_update_by_user.json 還原回呼叫前的內容：
+    否則畫面沒更新但覆蓋值已經落地，隔天早上排程一跑會突然套上去，
+    使用者當下以為「沒存成功」，結果隔天自己變了。
+    """
+    try:
+        old = _read_user_dates()
+    except Exception as e:
+        return {"status": "error",
+                "message": f"dates_update_by_user.json 讀取失敗：{e}"}, 500
+
+    new = dict(old)          # entry 是整個替換，不是就地修改，淺拷貝即可
+    new[etf_id] = new_entry
+    try:
+        _write_user_dates(new)
+    except Exception as e:
+        return {"status": "error",
+                "message": f"dates_update_by_user.json 寫入失敗：{e}"}, 500
+
+    gen = _run_gendatedata(skip_trading_day_check=True)
+    if not gen.get("success"):
+        try:
+            _write_user_dates(old)
+        except Exception as e:
+            return {"status": "error",
+                    "message": f"重算 etf_dates 失敗，且還原 dates_update_by_user.json 也失敗：{e}",
+                    "gendatedata": gen}, 500
+        detail = ((gen.get("stdout") or '') + (gen.get("stderr") or '')
+                  + (gen.get("message") or '')).strip()
+        return {"status": "error",
+                "message": "重算 etf_dates 失敗，修改已還原",
+                "detail": detail[-2000:],
+                "gendatedata": gen}, 500
+
+    backfill = _post_adjust_period_refresh(etf_id)
+
+    # 讀回實際生效的區間：清除覆蓋時前端才拿得到自動計算回來的值。
+    # 讀失敗不影響成功狀態——檔案已寫、gen 已跑完，前端還會再打一次 /api_dev/etf_dates。
+    applied = {}
+    try:
+        with open(ETF_DATES_PATH, 'r', encoding='utf-8') as f:
+            applied = json.load(f).get(etf_id) or {}
+    except Exception:
+        pass
+
+    return {
+        "status":       "ok",
+        "etf_id":       etf_id,
+        "adjust_begin": applied.get("adjust_begin"),
+        "adjust_end":   applied.get("adjust_end"),
+        "gendatedata":  gen,
+        "backfill":     backfill,
+    }, 200
+
+
+@app.route("/api_dev/adjust_period/<etf_id>", methods=["POST"])
+def set_adjust_period(etf_id):
+    """手動指定該 ETF 的調整期間，立即重算 etf_dates.json 與反向單 CSV。
+
+    Body JSON:
+      adjust_begin (str): YYYY-MM-DD
+      adjust_end   (str): YYYY-MM-DD
+    兩個欄位皆必填——前端彈窗一律預帶當前值，不會有空值情境。
+    """
+    if etf_id not in TARGET_ETF_LIST:
+        return jsonify({"status": "error", "message": f"未知的 ETF：{etf_id}"}), 400
+
+    payload = request.get_json(silent=True) or {}
+    begin   = payload.get("adjust_begin")
+    end     = payload.get("adjust_end")
+    if not begin or not end:
+        return jsonify({"status": "error",
+                        "message": "請填寫調整期間的開始日與結束日"}), 400
+
+    error = _validate_adjust_period(begin, end)
+    if error:
+        return jsonify({"status": "error", "message": error}), 400
+
+    respBody, status = _apply_adjust_period_change(
+        etf_id, {"adjust_begin": begin, "adjust_end": end})
+    return jsonify(respBody), status
+
+
+@app.route("/api_dev/adjust_period/<etf_id>", methods=["DELETE"])
+def clear_adjust_period(etf_id):
+    """清除該 ETF 的調整期間覆蓋，回到 DAO_dev.py 自動計算的結果。"""
+    if etf_id not in TARGET_ETF_LIST:
+        return jsonify({"status": "error", "message": f"未知的 ETF：{etf_id}"}), 400
+
+    respBody, status = _apply_adjust_period_change(etf_id, {})
+    return jsonify(respBody), status
 
 
 @app.route("/api_dev/sample_csv/<etf_id>", methods=["GET"])
