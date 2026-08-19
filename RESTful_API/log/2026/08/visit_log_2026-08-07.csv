@@ -1,0 +1,4 @@
+﻿timestamp,ip,user_agent,referrer,page
+2026-08-07 08:53:47,10.168.24.97,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",,etf_home
+2026-08-07 09:02:35,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",http://172.16.8.210/web/etf/,etf_home
+2026-08-07 16:36:17,172.16.8.156,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",,etf_home

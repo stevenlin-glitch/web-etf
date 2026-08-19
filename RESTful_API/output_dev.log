@@ -1,0 +1,64 @@
+ * Serving Flask app 'app_dev'
+ * Debug mode: off
+[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5051
+ * Running on http://172.16.253.156:5051
+[33mPress CTRL+C to quit[0m
+127.0.0.1 - - [19/Aug/2026 09:31:19] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+10.168.24.65 - - [19/Aug/2026 09:32:21] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+10.168.24.65 - - [19/Aug/2026 09:32:37] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+10.168.24.65 - - [19/Aug/2026 09:32:37] "GET /api_dev/upload_times HTTP/1.1" 200 -
+10.168.24.65 - - [19/Aug/2026 09:32:37] "GET /api_dev/mock_date HTTP/1.1" 200 -
+10.168.24.65 - - [19/Aug/2026 09:32:37] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+10.168.24.65 - - [19/Aug/2026 09:32:39] "GET /api_dev/reverse_csv_dates/00918 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:32:46] "GET /api_dev/reverse_csv/00918?date=2026-06-30 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:32:46] "GET /api_dev/reverse_csv/00918?date=2026-06-30 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:34:53] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:34:53] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:34:53] "GET /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:34:53] "GET /api_dev/upload_times HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:34:57] "GET /api_dev/reverse_csv_dates/00918 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:35:12] "GET /api_dev/reverse_csv_dates/00918 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:37:23] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:37:23] "GET /api_dev/upload_times HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:37:23] "GET /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:37:23] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:37:50] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:37:50] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:37:50] "GET /api_dev/upload_times HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:37:50] "GET /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:09] "POST /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:09] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:09] "GET /api_dev/upload_times HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:09] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:09] "GET /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:18] "POST /api_dev/upload_csv HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:42] "GET /api_dev/reverse_csv_dates/00918 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:55] "POST /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:55] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:55] "GET /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:55] "GET /api_dev/upload_times HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:38:55] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:02] "GET /api_dev/reverse_csv_dates/00918 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:05] "GET /api_dev/reverse_csv/00918?date=2026-06-30 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:23] "POST /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:23] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:23] "GET /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:23] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:23] "GET /api_dev/upload_times HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:47] "POST /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:47] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:47] "GET /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:47] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:47] "GET /api_dev/upload_times HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:39:55] "POST /api_dev/upload_csv HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:40:06] "GET /api_dev/reverse_csv_dates/00918 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:40:13] "GET /api_dev/reverse_csv/00918?date=2026-07-01 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:40:21] "GET /api_dev/reverse_csv/00918?date=2026-06-30 HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 09:47:09] "POST /api_dev/run_db_importer HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 10:18:48] "GET /api_dev/etf_dates HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 10:18:48] "GET /api_dev/upload_times HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 10:18:48] "GET /api_dev/etf_adjust_status HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 10:18:48] "GET /api_dev/mock_date HTTP/1.1" 200 -
+127.0.0.1 - - [19/Aug/2026 10:31:53] "GET /api_dev/etf_dates HTTP/1.1" 200 -

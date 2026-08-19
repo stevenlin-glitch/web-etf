@@ -1,0 +1,13 @@
+﻿timestamp,ip,user_agent,referrer,page
+2026-08-13 07:43:03,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",http://172.16.253.156/,etf_home
+2026-08-13 07:43:13,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",,etf_home
+2026-08-13 07:53:23,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",,etf_home
+2026-08-13 07:53:27,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",http://172.16.253.156/,etf_home
+2026-08-13 08:59:01,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",,etf_home
+2026-08-13 12:36:59,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",,etf_home
+2026-08-13 12:45:56,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",,etf_home
+2026-08-13 12:46:25,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",,etf_home
+2026-08-13 17:20:22,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",,etf_home
+2026-08-13 17:20:25,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",http://172.16.253.156/,etf_home
+2026-08-13 17:20:39,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",http://172.16.253.156/,etf_home
+2026-08-13 17:20:50,10.168.24.65,"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/151.0.0.0 Safari/537.36",https://ai.uccapital.com.tw/etfdailyreportweb/etf/0050/prod/2026-08-12.DailyReport.htm,etf_home
