@@ -290,10 +290,13 @@ html = r"""<!DOCTYPE html>
         }
 
         /* ════ 調整期間彈窗 ════ */
+        /* 結束日欄位隱藏後只剩一個欄位，space-between 會把 label 和輸入框推到彈窗左右兩端，
+           改成整組置中並用 gap 控制間距 */
         .period-field {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 10px;
             margin: 12px 0;
             font-size: 14px;
         }
@@ -752,14 +755,15 @@ html = r"""<!DOCTYPE html>
                 <label for="period-begin">開始日</label>
                 <input type="date" id="period-begin">
             </div>
-            <div class="period-field">
+            <div class="period-field" id="period-end-field" style="display:none">
                 <label for="period-end">結束日</label>
                 <input type="date" id="period-end">
             </div>
+            <p id="period-end-hint" style="margin:2px 0 0; font-size:12px; color:#555;"></p>
             <p class="period-error" id="period-error"></p>
             <div class="period-btn-row">
                 <button id="period-save-btn">儲存</button>
-                <button id="period-clear-btn">清除覆蓋</button>
+                <button id="period-clear-btn" style="display:none">清除覆蓋</button>
                 <button id="period-cancel-btn">取消</button>
             </div>
         </div>
@@ -1346,6 +1350,8 @@ html = r"""<!DOCTYPE html>
                 titleEl.textContent = `修改調整期間 - ${etfName}`;
                 beginEl.value = begin;
                 endEl.value = end;
+                document.getElementById('period-end-hint').textContent =
+                    end ? `結束日 ${end}（固定，由系統計算）` : '';
                 errorEl.textContent = '';
                 setBusy(false);
                 modal.style.display = 'flex';
@@ -1387,11 +1393,11 @@ html = r"""<!DOCTYPE html>
             });
 
             saveBtn.addEventListener('click', () => {
-                if (!beginEl.value || !endEl.value) {
-                    errorEl.textContent = '請填寫調整期間的開始日與結束日';
+                if (!beginEl.value) {
+                    errorEl.textContent = '請填寫調整期間的開始日';
                     return;
                 }
-                submitPeriod('POST', { adjust_begin: beginEl.value, adjust_end: endEl.value });
+                submitPeriod('POST', { adjust_begin: beginEl.value });
             });
 
             clearBtn.addEventListener('click', () => {
@@ -1418,3 +1424,8 @@ with open("index.html", "w", encoding="utf-8") as f:
     f.write(html)
 
 print("index.html \u5df2\u6210\u529f\u7522\u751f")
+
+
+
+# 執行
+# cd /var/www/html/web/etf/home/dev && /home/webuser/etf/venv/bin/python jsonToHtml.py

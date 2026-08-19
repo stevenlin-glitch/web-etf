@@ -488,7 +488,7 @@ def _validate_adjust_period(begin, end):
     if beginDate is None or endDate is None:
         return "日期格式錯誤，須為 YYYY-MM-DD"
     if beginDate > endDate:
-        return "結束日不能早於開始日"
+        return f"開始日不能晚於調整期結束日 {end}"
     try:
         if not _get_trading_days(begin, end):
             return f"{begin} ~ {end} 區間內沒有交易日"
@@ -596,22 +596,38 @@ def _apply_adjust_period_change(etf_id, new_entry):
 
 @app.route("/api_dev/adjust_period/<etf_id>", methods=["POST"])
 def set_adjust_period(etf_id):
-    """手動指定該 ETF 的調整期間，立即重算 etf_dates.json 與反向單 CSV。
+    """手動指定該 ETF 調整期間的開始日，立即重算 etf_dates.json 與反向單 CSV。
 
     Body JSON:
       adjust_begin (str): YYYY-MM-DD
-      adjust_end   (str): YYYY-MM-DD
-    兩個欄位皆必填——前端彈窗一律預帶當前值，不會有空值情境。
+    adjust_end 不由使用者指定——固定用 DAO 自動計算的現值。這裡把它一起寫進覆蓋檔，
+    純粹當作「這筆覆蓋屬於哪一期」的到期標記，DAO_dev.py 會在 today 超過它時自動清除。
     """
     if etf_id not in TARGET_ETF_LIST:
         return jsonify({"status": "error", "message": f"未知的 ETF：{etf_id}"}), 400
 
     payload = request.get_json(silent=True) or {}
     begin   = payload.get("adjust_begin")
-    end     = payload.get("adjust_end")
-    if not begin or not end:
+    if not begin:
         return jsonify({"status": "error",
-                        "message": "請填寫調整期間的開始日與結束日"}), 400
+                        "message": "請填寫調整期間的開始日"}), 400
+
+    # 結束日一律取自動計算的現值，忽略 body 帶進來的 adjust_end
+    try:
+        with open(ETF_DATES_PATH, 'r', encoding='utf-8') as f:
+            end = (json.load(f).get(etf_id) or {}).get('adjust_end')
+    except Exception as e:
+        return jsonify({"status": "error",
+                        "message": f"讀取 etf_dates.json 失敗：{e}"}), 500
+    if not end:
+        return jsonify({"status": "error",
+                        "message": f"{etf_id} 目前沒有調整期間，無法設定開始日"}), 400
+
+    # 已結束的調整期不接受設定：寫進去也會被 DAO 立刻判為過期清掉
+    endDate = _parse_iso_date(end)
+    if endDate is not None and endDate < get_today():
+        return jsonify({"status": "error",
+                        "message": f"{etf_id} 的調整期已於 {end} 結束，無法設定"}), 400
 
     error = _validate_adjust_period(begin, end)
     if error:
