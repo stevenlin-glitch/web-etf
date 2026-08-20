@@ -13,24 +13,24 @@ etfs = [
     {"id": "00878", "name": "00878"},
     {"id": "00900", "name": "00900"},
     {"id": "00918", "name": "00918"},
-    {"id": "00919_May", "name": "00919 \u4e94\u6708\u5b9a\u5be9\u7248"},
-    {"id": "00919_Dec", "name": "00919 \u5341\u4e8c\u6708\u5b9a\u5be9\u7248"},
+    {"id": "00919_May", "name": "00919 五月定審版"},
+    {"id": "00919_Dec", "name": "00919 十二月定審版"},
     {"id": "00929", "name": "00929"},
 ]
 
 # =========================
-# \u8b80\u53d6\u65e5\u671f\u8cc7\u8a0a JSON
+# 讀取日期資訊 JSON
 # =========================
-# \u4f7f\u7528\u7d55\u5c0d\u8def\u5f91\uff0c\u907f\u514d\u5f9e\u4e0d\u540c\u76ee\u9304\u57f7\u884c\u6642\u975c\u9ed8\u5931\u6557\u7522\u51fa\u5168 "-" \u7684 HTML
+# 使用絕對路徑，避免從不同目錄執行時靜默失敗產出全 "-" 的 HTML
 _ETF_DATES_PATH = "/var/www/html/web/etf/home/dev/etf_dates.json"
 try:
     with open(_ETF_DATES_PATH, "r", encoding="utf-8") as f:
         data = json.load(f)
 except FileNotFoundError:
-    raise SystemExit(f"[\u932f\u8aa4] \u627e\u4e0d\u5230 {_ETF_DATES_PATH}\uff0c\u8acb\u78ba\u8a8d\u8def\u5f91\u5f8c\u518d\u57f7\u884c")
+    raise SystemExit(f"[錯誤] 找不到 {_ETF_DATES_PATH}，請確認路徑後再執行")
 
 # =========================
-# \u7522\u751f table rows\uff08\u7d14\u5b57\u4e32\uff09
+# 產生 table rows（純字串）
 # =========================
 rows = []
 for etf in etfs:
@@ -42,23 +42,23 @@ for etf in etfs:
     else:
         upload_cell = (
             '<td>'
-            '<button class="upload-btn" data-etf-id="{id}" data-etf-name="{name}">\u4e0a\u50b3 CSV</button>'
+            '<button class="upload-btn" data-etf-id="{id}" data-etf-name="{name}">上傳 CSV</button>'
             '<br>'
             '<small class="upload-time" data-etf-id="{id}"></small>'
-            '<small class="not-in-period" data-etf-id="{id}">\u73fe\u5728\u975e\u8abf\u6574\u671f</small>'
+            '<small class="not-in-period" data-etf-id="{id}">現在非調整期</small>'
             '</td>'
         ).format(id=etf["id"], name=etf["name"])
-        # \u53cd\u5411\u55ae\u4e0b\u8f09\uff1a\u9810\u8a2d disabled\uff0c\u7531 toggleReverseCsvBtn() \u4f9d\u8abf\u6574\u671f\u72c0\u614b\u89e3\u9396
+        # 反向單下載：預設 disabled，由 toggleReverseCsvBtn() 依調整期狀態解鎖
         reverse_cell = (
             '<td>'
-            '<button class="reverse-csv-btn" disabled data-etf-id="{id}" data-etf-name="{name}">\u4e0b\u8f09CSV</button>'
+            '<button class="reverse-csv-btn" disabled data-etf-id="{id}" data-etf-name="{name}">下載CSV</button>'
             '</td>'
         ).format(id=etf["id"], name=etf["name"])
 
-    # \u8abf\u6574\u671f\u9593\uff1a\u5169\u7aef\u7686\u6709\u503c\u624d\u986f\u793a\u5340\u9593\u8207\u7de8\u8f2f\u6309\u9215
-    # \uff0800900 \u5728 DAO_dev.py \u7684 ADJUST_DAYS \u672a\u5b9a\u7fa9\uff0c\u6c38\u9060\u662f null\uff09\u3002
-    # \u6309\u9215\u5c0d\u5341\u6a94\u5168\u90e8\u6e32\u67d3\u9032 DOM\uff0c\u53ef\u898b\u6027\u4ea4\u7d66 JS \u5207 display\u2014\u2014
-    # \u9019\u6a23\u300c\u6e05\u9664\u8986\u84cb\u300d\u5f8c\u5340\u9593\u6709\u7121\u8b8a\u5316\u90fd\u4e0d\u7528\u91cd\u5efa DOM\u3002
+    # 調整期間：兩端皆有值才顯示區間與編輯按鈕
+    # （00900 在 DAO_dev.py 的 ADJUST_DAYS 未定義，永遠是 null）。
+    # 按鈕對十檔全部渲染進 DOM，可見性交給 JS 切 display——
+    # 這樣「清除覆蓋」後區間有無變化都不用重建 DOM。
     adj_begin = info.get("adjust_begin")
     adj_end = info.get("adjust_end")
     has_period = bool(adj_begin and adj_end)
@@ -66,7 +66,7 @@ for etf in etfs:
         '<td class="etf-adjust-period" data-etf-id="{id}">'
         '<span class="period-text" data-etf-id="{id}">{text}</span>'
         '<button class="edit-period-btn" data-etf-id="{id}" data-etf-name="{name}"'
-        ' title="\u4fee\u6539\u8abf\u6574\u671f\u9593" style="display:{disp}">&#9998;</button>'
+        ' title="修改調整期間" style="display:{disp}">&#9998;</button>'
         '</td>'
     ).format(
         id=etf["id"],
@@ -81,10 +81,10 @@ for etf in etfs:
             <td class="etf-deadline" data-etf-id="{id}">{deadline}</td>
             <td class="etf-effective" data-etf-id="{id}">{effective}</td>
             {period_cell}
-            <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/{id}/alpha/diff.html">\u6436\u5148\u7248</a></td>
-            <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/{id}/beta/diff.html">\u51cc\u6668\u7248</a></td>
-            <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/{id}/prod/diff.html">\u6b63\u5f0f\u7248</a></td>
-            <!--<td><a class="immed-link" data-etf-id="{id}">\u5373\u6642\u80a1\u50f9</a></td>-->
+            <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/{id}/alpha/diff.html">搶先版</a></td>
+            <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/{id}/beta/diff.html">凌晨版</a></td>
+            <td><a href="https://ai.uccapital.com.tw/etfdailyreportweb/etf/{id}/prod/diff.html">正式版</a></td>
+            <!--<td><a class="immed-link" data-etf-id="{id}">即時股價</a></td>-->
             {upload_cell}
             {reverse_cell}
         </tr>
@@ -101,9 +101,9 @@ for etf in etfs:
 # =========================
 # HTML Template
 # =========================
-# \u6a21\u677f\u7531\u90e8\u7f72\u7248 index.html \u53cd\u63a8\u800c\u4f86\uff0c\u5df2\u542b\u53cd\u5411\u55ae\u4e0b\u8f09 UI \u8207 debug \u9762\u677f\u5b8c\u6574\u529f\u80fd\u3002
-# \u7528 r-string\uff1a\u88e1\u9762 JS \u7684 '\\t' \u7b49\u53cd\u659c\u7dda\u8981\u539f\u6a23\u8f38\u51fa\uff0c\u4e0d\u80fd\u88ab Python \u7576\u8df3\u8131\u5b57\u5143\u5403\u6389\u3002
-# \u975e f-string\uff1b{ROWS} \u4ee5 str.replace() \u586b\u5165\u3002
+# 模板由部署版 index.html 反推而來，已含反向單下載 UI 與 debug 面板完整功能。
+# 用 r-string：裡面 JS 的 '\\t' 等反斜線要原樣輸出，不能被 Python 當跳脱字元吃掉。
+# 非 f-string；{ROWS} 以 str.replace() 填入。
 html = r"""<!DOCTYPE html>
 <html>
 
@@ -1417,14 +1417,14 @@ html = r"""<!DOCTYPE html>
 </html>"""
 
 # =========================
-# \u8f38\u51fa index.html
+# 輸出 index.html
 # =========================
 html = html.replace("{ROWS}", "".join(rows))
 
 with open("index.html", "w", encoding="utf-8") as f:
     f.write(html)
 
-print("index.html \u5df2\u6210\u529f\u7522\u751f")
+print("index.html 已成功產生")
 
 
 
