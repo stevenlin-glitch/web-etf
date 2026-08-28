@@ -527,15 +527,29 @@ def _parse_iso_date(value):
 
 
 def _has_showdown_csv(etf_id):
-    """該 ETF 是否有 tracker 認得的 showdown CSV。
+    """該 ETF 是否有 tracker 認得、且檔名日期落在本期調整期間內的 showdown CSV。
 
-    regex 必須與 tracker.py 的 findLatestShowdownCsv 一致（只收時間戳結尾的檔名，
-    排除 _tmp / _backup 等雜檔）。改動 tracker 的檔名規則時這裡要同步，
+    regex 與期間過濾規則必須與 tracker.py 的 findLatestShowdownCsv 一致，
     否則會出現「API 判定有 CSV 但 tracker 找不到」的落差。
+    期間比對用檔名日期不用 mtime，理由同 tracker（mock date 的時間基準）。
     """
-    pattern = re.compile(rf'^{re.escape(etf_id)}_\d{{8}}(_\d{{6}})?\.csv$')
     try:
-        return any(pattern.match(name) for name in os.listdir(UPLOAD_FOLDER))
+        with open(ETF_DATES_PATH, 'r', encoding='utf-8') as f:
+            info = json.load(f).get(etf_id) or {}
+    except Exception:
+        return False
+    begin = info.get('adjust_begin')
+    end   = info.get('adjust_end')
+    if not begin or not end:
+        return False
+    begin8, end8 = begin.replace('-', ''), end.replace('-', '')
+    pattern = re.compile(rf'^{re.escape(etf_id)}_(\d{{8}})(_\d{{6}})?\.csv$')
+    try:
+        for name in os.listdir(UPLOAD_FOLDER):
+            m = pattern.match(name)
+            if m and begin8 <= m.group(1) <= end8:
+                return True
+        return False
     except OSError:
         return False
 
