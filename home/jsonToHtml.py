@@ -3,7 +3,7 @@ import json
 # =========================
 # ETF 清單
 # =========================
-NO_UPLOAD_ETFS = {'0050', '0051', '00900'}
+NO_UPLOAD_ETFS = {'00900'}
 
 etfs = [
     {"id": "0050", "name": "0050"},
@@ -45,7 +45,7 @@ for etf in etfs:
             '<button class="upload-btn" data-etf-id="{id}" data-etf-name="{name}">上傳 CSV</button>'
             '<br>'
             '<small class="upload-time" data-etf-id="{id}"></small>'
-            '<small class="not-in-period" data-etf-id="{id}">現在非調整期</small>'
+            '<small class="not-in-period" data-etf-id="{id}">現在非可上傳期</small>'
             '</td>'
         ).format(id=etf["id"], name=etf["name"])
         # 反向單下載：預設 disabled，由 toggleReverseCsvBtn() 依調整期狀態解鎖
@@ -900,9 +900,8 @@ html = r"""<!DOCTYPE html>
                     const uploadedBtn = document.querySelector(`.upload-btn[data-etf-id="${currentETFId}"]`);
                     if (uploadedBtn) uploadedBtn.classList.remove('not-uploaded');
 
-                    // 上傳成功後（調整期內）啟用「下載CSV」按鈕
-                    const reverseBtn = document.querySelector(`.reverse-csv-btn[data-etf-id="${currentETFId}"]`);
-                    if (reverseBtn) reverseBtn.disabled = false;
+                    // 依後端狀態刷新該列：公告後上傳不能開「下載CSV」，交給 in_adjust 判斷
+                    refreshAdjustStatus();
 
                     closeModal();
                     document.getElementById("success-etf-name").textContent = currentETFName;
@@ -1000,53 +999,36 @@ html = r"""<!DOCTYPE html>
         }
         refreshEtfDates();
 
-        // 頁面載入時從後端取回所有 ETF 的上次上傳時間
-        (async function () {
-            try {
-                const res = await fetch(`${DEV_API}/api/upload_times`);
-                const times = await res.json();
-                for (const [etfId, uploadTime] of Object.entries(times)) {
-                    const timeEl = document.querySelector(`.upload-time[data-etf-id="${etfId}"]`);
-                    if (timeEl && uploadTime) timeEl.textContent = `上次上傳：${uploadTime}`;
-                }
-            } catch (e) {
-                // 後端未啟動時靜默略過，不影響頁面顯示
-            }
-        })();
-
-        // 顯示非調整期紅字，並鎖定非調整期的上傳按鈕
-        (async function () {
-            try {
-                const res = await fetch(`${DEV_API}/api/etf_adjust_status`);
-                const status = await res.json();
-                for (const [etfId, info] of Object.entries(status)) {
-                    const el = document.querySelector(`.not-in-period[data-etf-id="${etfId}"]`);
-                    const btn = document.querySelector(`.upload-btn[data-etf-id="${etfId}"]`);
-                    if (!info.in_period) {
-                        if (el) el.style.display = 'block';
-                        if (btn) btn.disabled = true;
-                        const timeEl = document.querySelector(`.upload-time[data-etf-id="${etfId}"]`);
-                        if (timeEl) timeEl.textContent = '';
-                    } else {
-                        if (btn) {
-                            btn.disabled = false;
-                            if (info.uploaded_in_period) {
-                                btn.classList.remove('not-uploaded');
-                            } else {
-                                btn.classList.add('not-uploaded');
-                            }
-                        }
-                    }
-                    toggleReverseCsvBtn(etfId, info);
-                }
-            } catch (e) {
-                // 後端未啟動時靜默略過
-            }
-        })();
+        // 頁面載入時：上次上傳時間、可上傳期／調整期狀態、上傳鈕與下載鈕（與存檔後的刷新走同一支）
+        refreshAdjustStatus();
 
         // 依調整期狀態刷新「上次上傳」「現在非調整期」與上傳／下載按鈕。
         // 原本定義在下面的模擬日期區塊裡；prod 停用那區塊，所以搬上來——
         // 調整期間彈窗存檔後會呼叫它。
+        // 依 /api/etf_adjust_status 的一筆 info 更新該列的上傳鈕、提示字、下載鈕。
+        // in_period = 可上傳期（upload_begin ~ adjust_end）；in_adjust = 調整期（tracker 有跑）。
+        function applyAdjustStatus(etfId, info) {
+            const el     = document.querySelector(`.not-in-period[data-etf-id="${etfId}"]`);
+            const btn    = document.querySelector(`.upload-btn[data-etf-id="${etfId}"]`);
+            const timeEl = document.querySelector(`.upload-time[data-etf-id="${etfId}"]`);
+            if (!info.in_period) {
+                if (el)  { el.textContent = '現在非可上傳期'; el.style.display = 'block'; }
+                if (btn) btn.disabled = true;
+                if (timeEl) timeEl.textContent = '';
+            } else {
+                if (btn) { btn.disabled = false; btn.classList.toggle('not-uploaded', !info.uploaded_in_period); }
+                if (el) {
+                    if (!info.in_adjust) {   // 公告後、尚未進調整期：可上傳，但反向單還沒有
+                        el.textContent = `反向單CSV於調整期 ${info.adjust_begin} 起提供`;
+                        el.style.display = 'block';
+                    } else {
+                        el.style.display = 'none';
+                    }
+                }
+            }
+            toggleReverseCsvBtn(etfId, info);
+        }
+
         async function refreshAdjustStatus() {
             try {
                 const [timesRes, statusRes] = await Promise.all([
@@ -1059,23 +1041,7 @@ html = r"""<!DOCTYPE html>
                     const timeEl = document.querySelector(`.upload-time[data-etf-id="${etfId}"]`);
                     if (timeEl && uploadTime) timeEl.textContent = `上次上傳：${uploadTime}`;
                 }
-                for (const [etfId, info] of Object.entries(status)) {
-                    const el = document.querySelector(`.not-in-period[data-etf-id="${etfId}"]`);
-                    const btn = document.querySelector(`.upload-btn[data-etf-id="${etfId}"]`);
-                    if (!info.in_period) {
-                        if (el) el.style.display = 'block';
-                        if (btn) btn.disabled = true;
-                        const timeEl = document.querySelector(`.upload-time[data-etf-id="${etfId}"]`);
-                        if (timeEl) timeEl.textContent = '';
-                    } else {
-                        if (el) el.style.display = 'none';
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.classList.toggle('not-uploaded', !info.uploaded_in_period);
-                        }
-                    }
-                    toggleReverseCsvBtn(etfId, info);
-                }
+                for (const [etfId, info] of Object.entries(status)) applyAdjustStatus(etfId, info);
             } catch (e) { /* 靜默略過 */ }
         }
 
@@ -1215,7 +1181,7 @@ html = r"""<!DOCTYPE html>
         // 依調整期狀態切換表格內按鈕：調整期內且已上傳才顯示
         function toggleReverseCsvBtn(etfId, info) {
             const btn = document.querySelector(`.reverse-csv-btn[data-etf-id="${etfId}"]`);
-            if (btn) btn.disabled = !(info.in_period && info.uploaded_in_period);
+            if (btn) btn.disabled = !(info.in_adjust && info.uploaded_in_period);
         }
 
         let currentReverseEtfId = "";
