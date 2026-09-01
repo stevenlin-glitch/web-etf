@@ -81,9 +81,9 @@ for etf in etfs:
             <td class="etf-deadline" data-etf-id="{id}">{deadline}</td>
             <td class="etf-effective" data-etf-id="{id}">{effective}</td>
             {period_cell}
-            <td><a href="http://172.16.253.156/web/etf/{id}/alpha/diff.html">搶先版</a></td>
-            <td><a href="http://172.16.253.156/web/etf/{id}/beta/diff.html">凌晨版</a></td>
-            <td><a href="http://172.16.253.156/web/etf/{id}/prod/diff.html">正式版</a></td>
+            <td><a href="http://172.16.253.143/web/etf/{id}/alpha/diff.html">搶先版</a></td>
+            <td><a href="http://172.16.253.143/web/etf/{id}/beta/diff.html">凌晨版</a></td>
+            <td><a href="http://172.16.253.143/web/etf/{id}/prod/diff.html">正式版</a></td>
             <!--<td><a class="immed-link" data-etf-id="{id}">即時股價</a></td>-->
             {upload_cell}
             {reverse_cell}
@@ -773,10 +773,10 @@ html = r"""<!DOCTYPE html>
     <script>
         // API 位址：依頁面來源自動切換
         // - https（經 gateway，如 ai.uccapital.com.tw/etfdailyreportweb/...）→ 走同源反代 /<第一段路徑>/api/...
-        // - http （內網直連 172.16.253.156/web/...）→ 直接打 5051 埠
+        // - http （內網直連 172.16.253.143/web/...）→ 直接打 5051 埠
         const DEV_API = location.protocol === 'https:'
             ? `${location.origin}/${location.pathname.split('/')[1]}`
-            : 'http://172.16.253.156:5050';
+            : 'http://172.16.253.143:5050';
 
         (function () {
             function formatDate(d) {
