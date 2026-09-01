@@ -202,9 +202,11 @@ def get_upload_times():
             continue
         try:
             adj_begin    = datetime.strptime(periods[etf_id]['adjust_begin'], '%Y-%m-%d').date()
+            upload_begin = datetime.strptime(
+                periods[etf_id].get('upload_begin') or periods[etf_id]['adjust_begin'], '%Y-%m-%d').date()
             adj_end     = datetime.strptime(periods[etf_id]['adjust_end'],       '%Y-%m-%d').date()
             upload_date = datetime.strptime(upload_time, '%Y-%m-%d %H:%M:%S').date()
-            if adj_begin <= today <= adj_end and adj_begin <= upload_date <= adj_end:
+            if upload_begin <= today <= adj_end and upload_begin <= upload_date <= adj_end:
                 filtered[etf_id] = upload_time
         except Exception:
             continue
@@ -237,19 +239,24 @@ def get_etf_adjust_status():
     for etf_id, info in periods.items():
         try:
             adj_begin  = datetime.strptime(info['adjust_begin'], '%Y-%m-%d').date()
+            upload_begin = datetime.strptime(
+                info.get('upload_begin') or info['adjust_begin'], '%Y-%m-%d').date()
             adj_end   = datetime.strptime(info['adjust_end'],       '%Y-%m-%d').date()
-            in_period = adj_begin <= today <= adj_end
+            in_period = upload_begin <= today <= adj_end     # 可上傳期（前端上傳鈕）
+            in_adjust = adj_begin    <= today <= adj_end     # 調整期（tracker 有跑，前端下載鈕）
 
             uploaded_in_period = False
             if in_period and etf_id in upload_times:
                 try:
                     upload_date = datetime.strptime(upload_times[etf_id], '%Y-%m-%d %H:%M:%S').date()
-                    uploaded_in_period = adj_begin <= upload_date <= adj_end
+                    uploaded_in_period = upload_begin <= upload_date <= adj_end
                 except Exception:
                     pass
 
             result[etf_id] = {
                 'in_period':          in_period,
+                'in_adjust':          in_adjust,
+                'upload_begin':       str(upload_begin),
                 'effective_date':     info['adjust_effective'],
                 'adjust_begin':       info['adjust_begin'],
                 'adjust_end':         info['adjust_end'],
@@ -484,7 +491,7 @@ def _has_showdown_csv(etf_id):
             info = json.load(f).get(etf_id) or {}
     except Exception:
         return False
-    begin = info.get('adjust_begin')
+    begin = info.get('upload_begin') or info.get('adjust_begin')
     end   = info.get('adjust_end')
     if not begin or not end:
         return False
@@ -711,6 +718,21 @@ def upload_csv():
         return jsonify({"error": "沒有選擇檔案"}), 400
     if not etf_name:
         return jsonify({"error": "缺少 ETF 名稱"}), 400
+    if etf_id not in TARGET_ETF_LIST:
+        return jsonify({"error": f"未知的 ETF：{etf_id}"}), 400
+    
+    try:
+        with open(ETF_DATES_PATH, 'r', encoding='utf-8') as f:
+            info = json.load(f).get(etf_id) or {}
+    except Exception as e:
+        return jsonify({"error": f"讀取 etf_dates.json 失敗：{e}"}), 500
+    upload_begin = _parse_iso_date(info.get('upload_begin') or info.get('adjust_begin'))
+    adj_end      = _parse_iso_date(info.get('adjust_end'))
+    
+    if upload_begin is None or adj_end is None:
+        return jsonify({"error": f"{etf_id} 尚無可上傳期間"}), 403
+    if not (upload_begin <= get_today() <= adj_end):
+        return jsonify({"error": f"{etf_id} 目前不在可上傳期間（{upload_begin} ~ {adj_end}）"}), 403
 
     # 2. 限制副檔名，避免上傳非 CSV 檔案
     if not file.filename.lower().endswith('.csv'):
